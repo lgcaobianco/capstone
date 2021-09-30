@@ -1,4 +1,4 @@
 export interface CreateAlbumRequest {
-  name: string;
-  releaseDate: string;
+  name: string
+  releaseDate: string
 }

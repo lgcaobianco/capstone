@@ -7,7 +7,6 @@ import { cors } from 'middy/middlewares'
 import {findAllByUserId} from '../../repository/album-repository';
 import { parseUserId } from '../../auth/utils'
 
-// TODO: Get all TODO items for a current user
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     console.log("[INFO] get has been received");

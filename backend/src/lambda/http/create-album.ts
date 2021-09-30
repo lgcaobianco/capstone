@@ -8,6 +8,7 @@ import {
   parseUserId
 } from '../../auth/utils'
 import { CreateAlbumRequest } from '../../requests/create-album-request';
+import { save } from '../../repository/album-repository';
 
 
 export const handler = middy(
@@ -23,8 +24,8 @@ export const handler = middy(
       };
     }
     const userId = parseUserId(event.headers.Authorization.split(" ")[1]);
-    const todo = await save(newTodo, userId);
-    console.log("todo created:" + JSON.stringify(todo));
+    const album = await save(newAlbum, userId);
+    console.log("album created:" + JSON.stringify(album));
 
     return {
       statusCode: 201,
@@ -33,7 +34,7 @@ export const handler = middy(
         'Access-Control-Allow-Credentials': true
       },
       body: JSON.stringify({
-        item: todo
+        item: album
       })
     };
   });

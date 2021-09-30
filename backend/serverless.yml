@@ -30,7 +30,7 @@ provider:
     S3_URL_EXPIRATION: 300
 
 custom:
-  topicName: todoTopic-${self:provider.stage}
+  topicName: albumTopic-${self:provider.stage}
 
   documentation:
     api:
@@ -44,7 +44,7 @@ functions:
     handler: src/lambda/auth/auth0Authorizer.handler
 
   CreateAlbum:
-    handler: src/lambda/http/create-todo.handler
+    handler: src/lambda/http/create-album.handler
     events:
       - http:
           method: post
@@ -60,9 +60,8 @@ functions:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
 
-  # TODO: Configure this function
   GetAlbum:
-    handler: src/lambda/http/get-album.handler
+    handler: src/lambda/http/get-albums.handler
     events:
       - http:
           method: get
@@ -78,13 +77,13 @@ functions:
         Action:
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
- # TODO: Configure this function
+ 
   UpdateAlbum:
     handler: src/lambda/http/update-album.handler
     events:
       - http:
           method: patch
-          path: albums/{todoId}
+          path: albums/{albumId}
           authorizer: Auth
           cors: true
           request:
@@ -101,13 +100,12 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}/index/${self:provider.environment.ALBUM_USER_INDEX}
 
-  # TODO: Configure this function
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
           method: post
-          path: albums/{todoId}/attachment
+          path: albums/{albumId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -123,11 +121,11 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
   
   DeleteAlbum:
-    handler: src/lambda/http/deleteTodo.handler
+    handler: src/lambda/http/delete-album.handler
     events:
       - http:
           method: delete
-          path: albums/{todoId}
+          path: albums/{albumId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
