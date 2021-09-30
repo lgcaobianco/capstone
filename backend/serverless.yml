@@ -24,8 +24,8 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Album-${self:provider.stage}
-    TODO_USER_INDEX: AlbumUserIndex
+    ALBUMS_TABLE: Album-${self:provider.stage}
+    ALBUM_USER_INDEX: AlbumUserIndex
     IMAGES_S3_BUCKET: 1523563-serverless-album-images-dev-${self:provider.stage} #CHANGE IT, BECAUSE THE BUCKET MUST HAVE A GLOBAL UNIQUE IDENTIFIER, OTHERWISE THIS SCRIPT WILL NOT WORK.
     S3_URL_EXPIRATION: 300
 
@@ -36,71 +36,70 @@ custom:
     api:
       info:
         version: v1.0.0
-        title: Udagram API
-        description: Serverless application for images sharing
+        title: Album API
+        description: Serverless album app where you can save the cover and mark it as listened
 
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateAlbum:
+    handler: src/lambda/http/create-todo.handler
     events:
       - http:
           method: post
-          path: todos
+          path: albums
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-album-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
 
   # TODO: Configure this function
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetAlbum:
+    handler: src/lambda/http/get-album.handler
     events:
       - http:
           method: get
-          path: todos
+          path: albums
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODO_USER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}/index/${self:provider.environment.ALBUM_USER_INDEX}
       - Effect: Allow
         Action:
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
  # TODO: Configure this function
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateAlbum:
+    handler: src/lambda/http/update-album.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: albums/{todoId}
           authorizer: Auth
           cors: true
           request:
             schemas:
-              application/json: ${file(models/update-todo-model.json)}
+              application/json: ${file(models/update-album-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODO_USER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}/index/${self:provider.environment.ALBUM_USER_INDEX}
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -108,7 +107,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: albums/{todoId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -121,14 +120,14 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
   
-  DeleteTodo:
+  DeleteAlbum:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: albums/{todoId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -136,11 +135,11 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODO_USER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ALBUMS_TABLE}/index/${self:provider.environment.ALBUM_USER_INDEX}
       - Effect: Allow
         Action:
           - s3:DeleteObject
@@ -162,23 +161,23 @@ resources:
 
 
     # DynamoDB
-    TodoTable:
+    AlbumTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: todoId
+          - AttributeName: albumId
             AttributeType: S
           - AttributeName: userId
             AttributeType: S
         KeySchema:
-          - AttributeName: todoId
+          - AttributeName: albumId
             KeyType: HASH
           - AttributeName: userId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.ALBUMS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: TodoUserIndex
+          - IndexName: AlbumUserIndex
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
