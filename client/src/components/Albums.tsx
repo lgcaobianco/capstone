@@ -83,6 +83,7 @@ export class Albums extends React.PureComponent<AlbumsProps, AlbumsState> {
   onAlbumCheck = async (pos: number) => {
     try {
       const album = this.state.albums[pos]
+      console.log('album id to update: ' + JSON.stringify(album));
       await patchAlbum(this.props.auth.getIdToken(), album.albumId, {
         name: album.name,
         releaseDate: album.releaseDate,

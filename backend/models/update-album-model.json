@@ -9,14 +9,14 @@
     "releaseDate": {
       "type": "string"
     },
-    "listened": {
+    "done": {
       "type": "boolean"
     }
   },
   "required": [
     "name",
-    "dueDate",
-    "listened"
+    "releaseDate",
+    "done"
   ],
   "additionalProperties": false
 }

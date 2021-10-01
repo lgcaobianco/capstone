@@ -46,10 +46,10 @@ export function update(id: String, albumUpdated: UpdateAlbumRequest, userId: Str
       "albumId": id,
       "userId": userId
     },
-    UpdateExpression: "set #name = :n, #releaseDate = :due, #done = :d",
+    UpdateExpression: "set #name = :n, #releaseDate = :releaseDate, #done = :d",
     ExpressionAttributeValues: {
       ":n": albumUpdated.name,
-      ":due": albumUpdated.releaseDate,
+      ":releaseDate": albumUpdated.releaseDate,
       ":d": albumUpdated.done,
     },
     ExpressionAttributeNames: {

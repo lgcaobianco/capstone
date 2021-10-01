@@ -13,8 +13,11 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const albumId = event.pathParameters.albumId
     const updatedAlbum: UpdateAlbumRequest = JSON.parse(event.body)
-
+    console.log(`album id received: ${albumId}`)
+    console.log(`album id received: ${JSON.stringify(updatedAlbum)}`)
+    
     const userId = parseUserId(event.headers.Authorization.split(" ")[1]);
+    console.log(`userId id received: ${userId}`)
 
     const response = update(albumId, updatedAlbum, userId);
 
